@@ -3,6 +3,8 @@ import { computed, reactive, ref, toRaw } from 'vue'
 import XIcon from './components/XIcon.vue'
 import OIcon from './components/OIcon.vue'
 
+import GearIcon from './components/GearIcon.vue'
+
 const turn = ref<'X' | 'O'>('X')
 const tiles = reactive<Array<'X' | 'O' | null>>(Array(9).fill(null))
 const history = reactive<number[]>([])
@@ -10,8 +12,8 @@ const toRemove = computed(() => {
   if (history.length >= 6) return history[0]
   else return null
 })
-
-function checkWin() {
+const configShown = ref(false)
+const winner = computed(() => {
   const winningCombinations = [
     [0, 1, 2],
     [3, 4, 5],
@@ -32,16 +34,16 @@ function checkWin() {
   }
 
   return null
-}
+})
 
 const handleClick = (index: number) => {
-  if (tiles[index] !== null) return
+  if (tiles[index] !== null || winner.value !== null) return
 
   tiles[index] = turn.value
   turn.value = turn.value === 'X' ? 'O' : 'X'
 
-  if (checkWin() !== null) {
-    console.warn('WINNER')
+  if (winner.value !== null) {
+    return console.warn('WINNER')
   }
 
   if (toRemove.value !== null) {
@@ -55,7 +57,20 @@ const handleClick = (index: number) => {
 
 <template>
   <header>
-    <div class="config"></div>
+    <div>
+      <button class="config" @click="configShown = true">
+        <GearIcon />
+      </button>
+
+      <div class="overlay-modal" :class="{ shown: configShown }" @click.self="configShown = false">
+        <div class="config-modal">
+          <div class="theme">
+            <button class="active">Claro</button>
+            <button>Escuro</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <h1>Tic Tac Toe</h1>
     <div class="turn-view">
       <p class="xTurn" :class="{ turn: turn === 'X' }">
@@ -66,7 +81,6 @@ const handleClick = (index: number) => {
         <OIcon />
       </p>
     </div>
-    {{ toRemove }}
   </header>
   <main>
     <div class="board">
@@ -77,7 +91,7 @@ const handleClick = (index: number) => {
         :class="{
           xTurn: tiles[index] === 'X',
           oTurn: tiles[index] === 'O',
-          remove: index === toRemove,
+          remove: index === toRemove && tiles[index] !== winner,
         }"
         @click="() => handleClick(index)"
       >
@@ -91,6 +105,9 @@ const handleClick = (index: number) => {
       <div class="divider"></div>
     </div>
   </main>
+  <footer>
+    <p>Open source no <a href="https://github.com/P0sseid0n/InfiniteTicTacToe" target="_blank" rel="noopener noreferrer">Github</a></p>
+  </footer>
 </template>
 
 <style>
@@ -125,11 +142,91 @@ const handleClick = (index: number) => {
 }
 
 header {
-  height: 15vh;
+  height: 25vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
+  padding-top: 16px;
+}
+
+header .config {
+  display: flex;
+  gap: 32px;
+}
+
+header .config {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  font-size: 1.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  transition: background-color 0.2s;
+  z-index: 1000;
+}
+
+header .config:hover {
+  background-color: #f3f4f6;
+}
+
+.overlay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.overlay-modal.shown {
+  display: flex;
+}
+
+.config-modal {
+  display: flex;
+  flex-direction: column;
+
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px;
+}
+
+.config-modal .theme {
+  width: 100%;
+  background-color: #e5e7eb;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.config-modal .theme button {
+  background-color: #e5e7eb;
+  width: 50%;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.config-modal .theme button.active {
+  background-color: #f9fafb;
 }
 
 header .turn-view {
@@ -149,6 +246,7 @@ header .turn-view p {
   opacity: 0.1;
   padding: 8px 0;
   font-size: 1.5rem;
+  transition: opacity 0.5s;
 }
 
 header .turn-view p.turn {
@@ -217,5 +315,22 @@ button.tile.remove {
 
 .board .divider:nth-of-type(4) {
   top: calc(100% / 3 * 2);
+}
+
+footer {
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer a {
+  color: #000;
+  text-decoration: none;
+  font-weight: bolder;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
 </style>
