@@ -6,6 +6,6 @@ Ao ir acabando os espaços, peças são removidas do tabuleiro, e o jogo continu
 ## Roadmap
 
 - [ ] Implementar tema escuro
-- [ ] Implementar tela de vitória
+- [x] Implementar tela de vitória
 - [ ] Implementar escolha de cores
 - [ ] Implementar a inteligência artificial

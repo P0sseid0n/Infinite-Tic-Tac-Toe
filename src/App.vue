@@ -53,6 +53,12 @@ const handleClick = (index: number) => {
 
   history.push(index)
 }
+
+const handleRestart = () => {
+  tiles.fill(null)
+  history.splice(0, history.length)
+  turn.value = 'X'
+}
 </script>
 
 <template>
@@ -83,6 +89,19 @@ const handleClick = (index: number) => {
     </div>
   </header>
   <main>
+    <div class="overlay-modal" :class="{ shown: winner !== null }">
+      <div class="win-modal">
+        <h2>
+          <div>
+            <XIcon v-if="winner === 'X'" />
+            <OIcon v-else-if="winner === 'O'" />
+          </div>
+          <span>venceu!</span>
+        </h2>
+        <button @click="handleRestart">Recomeçar Jogo</button>
+      </div>
+    </div>
+
     <div class="board">
       <button
         v-for="(tile, index) in tiles"
@@ -172,7 +191,7 @@ header .config {
 }
 
 header .config:hover {
-  background-color: #f3f4f6;
+  border-color: black;
 }
 
 .overlay-modal {
@@ -185,20 +204,19 @@ header .config:hover {
   justify-content: center;
   align-items: center;
   z-index: 999;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .overlay-modal.shown {
   display: flex;
 }
 
-.config-modal {
+.overlay-modal > div {
   display: flex;
   flex-direction: column;
-
   position: absolute;
-  top: 64px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
@@ -206,6 +224,10 @@ header .config:hover {
   width: 100%;
   max-width: 320px;
   padding: 16px;
+}
+
+.config-modal {
+  top: 96px;
 }
 
 .config-modal .theme {
@@ -258,6 +280,36 @@ main {
   justify-content: center;
   align-items: center;
   height: 85vh;
+}
+
+.win-modal {
+  top: 50%;
+}
+
+.win-modal h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.win-modal div {
+  font-size: 2rem;
+}
+
+.win-modal button {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.win-modal button:hover {
+  border-color: black;
 }
 
 .board {
