@@ -13,6 +13,15 @@ const toRemove = computed(() => {
   else return null
 })
 const configShown = ref(false)
+const paletteColors = ref([
+  ['#000', '#000'],
+  ['#003366', '#FF6600'],
+  ['#006400', '#FFCC00'],
+  ['#800080', '#FF007F'],
+  ['#708090', '#FF4500'],
+])
+const paletteSelected = ref(0)
+
 const winner = computed(() => {
   const winningCombinations = [
     [0, 1, 2],
@@ -59,6 +68,14 @@ const handleRestart = () => {
   history.splice(0, history.length)
   turn.value = 'X'
 }
+
+function handlePaletteChange(index = 0) {
+  const color = paletteColors.value[index]
+  document.documentElement.style.setProperty('--x-color', color[0])
+  document.documentElement.style.setProperty('--o-color', color[1])
+
+  paletteSelected.value = index
+}
 </script>
 
 <template>
@@ -70,6 +87,17 @@ const handleRestart = () => {
 
       <div class="overlay-modal" :class="{ shown: configShown }" @click.self="configShown = false">
         <div class="config-modal">
+          <div class="palette">
+            <button
+              v-for="(color, index) in paletteColors"
+              :key="index"
+              @click="() => handlePaletteChange(index)"
+              :class="{ active: index === paletteSelected }"
+            >
+              <div :style="{ backgroundColor: color[0] }"></div>
+              <div :style="{ backgroundColor: color[1] }"></div>
+            </button>
+          </div>
           <div class="theme">
             <button class="active">Claro</button>
             <button>Escuro</button>
@@ -175,10 +203,10 @@ header .config {
 }
 
 header .config {
-  background-color: #f9fafb;
+  background-color: white;
   border: 1px solid #e5e7eb;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1rem;
   width: 32px;
   height: 32px;
   border-radius: 4px;
@@ -191,7 +219,7 @@ header .config {
 }
 
 header .config:hover {
-  border-color: black;
+  background-color: #f3f4f6;
 }
 
 .overlay-modal {
@@ -224,10 +252,34 @@ header .config:hover {
   width: 100%;
   max-width: 320px;
   padding: 16px;
+  gap: 32px;
 }
 
 .config-modal {
   top: 96px;
+}
+
+.config-modal .palette {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.config-modal .palette button {
+  border: none;
+  background-color: transparent;
+  display: flex;
+  gap: 1px;
+  cursor: pointer;
+}
+
+.config-modal .palette button.active {
+  border: 2px solid #000;
+}
+
+.config-modal .palette button > div {
+  width: 24px;
+  height: 16px;
 }
 
 .config-modal .theme {
@@ -288,7 +340,6 @@ main {
 
 .win-modal h2 {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -300,7 +351,7 @@ main {
 }
 
 .win-modal button {
-  background-color: #f9fafb;
+  background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   padding: 8px 16px;
@@ -309,7 +360,7 @@ main {
 }
 
 .win-modal button:hover {
-  border-color: black;
+  background-color: #f3f4f6;
 }
 
 .board {
